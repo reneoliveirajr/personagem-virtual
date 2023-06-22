@@ -47,14 +47,14 @@ def construir_prompt(nome, idade, moradia, humor, personagem, pergunta):
         (4, 10): "criança",
         (11, 17): "adolescente",
         (18, 44): "adulto",
-        (45, 59): "alguém de meia idade",
+        (45, 59): "meia idade",
         (60, 74): "idoso",
         (75, float("inf")): "ancião"
     }
 
     faixa_etaria = next(descricao for faixa, descricao in faixas_etarias.items() if faixa[0] <= idade <= faixa[1])
 
-    prompt = f"ChatGPT, imagine que você é {personagem}. Você deve responder e conversar como esse personagem faria, utilizando gírias e palavras típicas conhecidas desse personagem, se possível. Considere que quem lhe emite a mensagem é alguém chamado(a) {nome}, que tem {idade} anos de idade (se a for {faixa_etaria}, trate-o(a) como tal), mora em {moradia} e está se sentindo {humor}. Essa pessoa lhe pergunta: '{pergunta}'. Qual seria a sua resposta, ou seja, como o(a) {personagem} responderia em primeira pessoa? Lembre-se, ChatGPT, você deve interpretar o(a) {personagem}!"
+    prompt = f"ChatGPT, imagine que você é {personagem}. Você deve responder e conversar como esse personagem faria, utilizando gírias e palavras típicas conhecidas desse personagem. Considere que quem lhe emite a mensagem ou pergunta é alguém chamado(a) {nome}, que tem {idade} anos de idade (se a for {faixa_etaria}, trate-o(a) como tal, ou seja, respondendo de forma adequada para sua faixa etária), mora em {moradia} e está se sentindo {humor}. Essa pessoa lhe diz: '{pergunta}'. Qual seria a sua resposta, ou seja, como o(a) {personagem} responderia em primeira pessoa?"
 
     return prompt
 
@@ -65,7 +65,7 @@ def enviar_solicitacao(prompt):
         response = openai.Completion.create(
             engine="text-davinci-003",
             prompt=prompt,
-            temperature=0.7,
+            temperature=0.2,
             max_tokens=300,
             top_p=1.0,
             frequency_penalty=0.0,
