@@ -58,48 +58,49 @@ class App:
 
         window = sg.Window("Simulador de Personagens - by René - Versão ALPHA 3", layout, resizable=True)
 
-        while True:
-            try:
-                event, values = window.read(timeout=100)
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            while True:
+                try:
+                    event, values = window.read(timeout=100)
 
-                if event == sg.WIN_CLOSED or event == "Sair":
-                    # Obtenha o caminho completo para a pasta _pycache_
-                    cache_dir = os.path.join(os.getcwd(), '__pycache__')
+                    if event == sg.WIN_CLOSED or event == "Sair":
+                        # Obtenha o caminho completo para a pasta _pycache_
+                        cache_dir = os.path.join(os.getcwd(), '__pycache__')
 
-                    # Verifique se a pasta existe
-                    if os.path.exists(cache_dir) and os.path.isdir(cache_dir):
-                        # Remova a pasta e seu conteúdo
-                        shutil.rmtree(cache_dir)
-                    sys.exit()
+                        # Verifique se a pasta existe
+                        if os.path.exists(cache_dir) and os.path.isdir(cache_dir):
+                            # Remova a pasta e seu conteúdo
+                            shutil.rmtree(cache_dir)
+                        sys.exit()
 
-                if event == '-PERSONAGEM-':
-                    window['-OUTPUT1-'].update('')
-                    window['-IMAGE1-'].update(data=None)
-                    window['-IMAGE2-'].update(data=None)
-                    self.chat_assistant.historico_mensagens.clear()
+                    if event == '-PERSONAGEM-':
+                        window['-OUTPUT1-'].update('')
+                        window['-IMAGE1-'].update(data=None)
+                        window['-IMAGE2-'].update(data=None)
+                        self.chat_assistant.historico_mensagens.clear()
 
-                elif event == "Enviar mensagem ou pergunta":
-                    nome = values['-NOME-']
-                    idade = int(values['-IDADE-'])  # Converte a idade para inteiro
-                    filtro_familia = next((valor for faixa, valor in self.filtro_familia_map.items() if faixa[0] <= idade <= faixa[1]), None)
-                    moradia = values['-MORADIA-']
-                    humor = values['-HUMOR-']
-                    personagem = values['-PERSONAGEM-']
-                    mensagem = values['-MENSAGEM-']
-                    self.mensagem = self.prompt.gera_prompt(nome, idade, moradia, humor, personagem, mensagem)
-                    resposta = self.conversar_com_personagem(nome, idade, moradia, humor, personagem, mensagem)
-                    window['-OUTPUT1-'].print(f"{personagem.upper()} DIZ:\n{resposta}\n\n")
-                    
-                    with concurrent.futures.ThreadPoolExecutor() as executor:
+                    elif event == "Enviar mensagem ou pergunta":
+                        nome = values['-NOME-']
+                        idade = int(values['-IDADE-'])  # Converte a idade para inteiro
+                        filtro_familia = next((valor for faixa, valor in self.filtro_familia_map.items() if faixa[0] <= idade <= faixa[1]), None)
+                        moradia = values['-MORADIA-']
+                        humor = values['-HUMOR-']
+                        personagem = values['-PERSONAGEM-']
+                        mensagem = values['-MENSAGEM-']
+
+                        self.mensagem = self.prompt.gera_prompt(nome, idade, moradia, humor, personagem, mensagem)
+                        resposta = self.conversar_com_personagem(nome, idade, moradia, humor, personagem, mensagem)
+                        window['-OUTPUT1-'].print(f"{personagem.upper()} DIZ:\n{resposta}\n\n")
+
                         future = executor.submit(self.download_images, personagem, filtro_familia)
                         images = future.result()
                         for i, image in enumerate(images[:2]):
-                            self.update_window_with_image(window, f'-IMAGE{i+1}-', image)
+                            if isinstance(image, str):
+                                window['-OUTPUT1-'].print(image)
+                            else:
+                                self.update_window_with_image(window, f'-IMAGE{i+1}-', image)
 
-            except Exception as e:
-                error_message = f"Ocorreu um erro inesperado: {e}"
-                print(error_message)
-                window['-OUTPUT1-'].print(error_message)
-
-app = App()
-app.main()
+                except Exception as e:
+                    error_message = f"Ocorreu um erro inesperado: {e}"
+                    print(error_message)
+                    window['-OUTPUT1-'].print(error_message)
