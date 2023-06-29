@@ -1,9 +1,13 @@
+import os
+import shutil
+import sys
 from PIL import ImageTk
 import PySimpleGUI as sg
-from config import Config
-from prompt import Prompt
 from chat_assistant import ChatAssistant
+from config import Config
 from image_fetcher import ImageFetcher
+from prompt import Prompt
+import concurrent.futures
 
 class App:
     def __init__(self):
@@ -19,9 +23,9 @@ class App:
         window[key].update(data=ImageTk.PhotoImage(image))
 
     def conversar_com_personagem(self, nome, idade, moradia, humor, personagem, mensagem):
-        mensagem = self.prompt.gera_prompt(nome, idade, moradia, humor, personagem)
-        self.chat_assistant.adicionar_mensagem("system", mensagem)
-        self.chat_assistant.adicionar_mensagem("user", mensagem)
+        mensagem_gerada = self.prompt.gera_prompt(nome, idade, moradia, humor, personagem, mensagem)
+        self.chat_assistant.adicionar_mensagem("system", mensagem_gerada)
+        self.chat_assistant.adicionar_mensagem("user", mensagem_gerada)
         resposta = ""
         while not resposta.endswith('.'):
             resposta = self.chat_assistant.enviar_solicitacao()
@@ -31,6 +35,9 @@ class App:
             if resposta and resposta[-1] == ' ': resposta = resposta[:-1]
         return resposta.strip()
 
+    def download_images(self, personagem, filtro_familia):
+        return self.image_fetcher.download_personagem_image(personagem, filtro_familia)
+
     def main(self):
         layout = [
             [sg.Text("Qual o seu nome? "), sg.Input(key='-NOME-', size=(30,), enable_events=False)],
@@ -38,9 +45,9 @@ class App:
             [sg.Text("Onde você mora? "), sg.Input(key='-MORADIA-', size=(30,), enable_events=False)],
             [sg.Text("Como você está se sentindo agora? "), sg.Input(key='-HUMOR-', size=(30,), enable_events=False)],
             [sg.Text("Com quem você quer falar? "), sg.Input(key='-PERSONAGEM-', size=(30,), enable_events=True)],
-            [sg.Text("Escreva a mensagem, diga ou pergunte algo: "), sg.Input(key='-MENSAGEM-', size=(75,), enable_events=False)],
+            [sg.Text("Escreva a mensagem, diga ou pergunte algo: "), sg.Input(key='-MENSAGEM-', size=(100,), enable_events=False)],
             [sg.Button("Enviar mensagem ou pergunta"), sg.Button("Sair")],
-            [sg.Image(key='-IMAGE1-', size=(201, 201)), sg.Output(size=(30, 10), key='-OUTPUT1-', expand_x=True, expand_y=True), sg.Image(key='-IMAGE2-', size=(201, 201))],
+            [sg.Image(key='-IMAGE1-', size=(400, 300)), sg.Output(size=(40, 20), key='-OUTPUT1-', expand_x=True, expand_y=True), sg.Image(key='-IMAGE2-', size=(400, 300))],
         ]
 
         window = sg.Window("Simulador de Personagens - by René - Versão ALPHA 3", layout, resizable=True)
@@ -49,8 +56,15 @@ class App:
             try:
                 event, values = window.read(timeout=100)
 
-                if event in (sg.WIN_CLOSED, "Sair"):
-                    break
+                if event == sg.WIN_CLOSED or event == "Sair":
+                    # Obtenha o caminho completo para a pasta _pycache_
+                    cache_dir = os.path.join(os.getcwd(), '__pycache__')
+
+                    # Verifique se a pasta existe
+                    if os.path.exists(cache_dir) and os.path.isdir(cache_dir):
+                        # Remova a pasta e seu conteúdo
+                        shutil.rmtree(cache_dir)
+                    sys.exit()
 
                 if event == '-PERSONAGEM-':
                     window['-OUTPUT1-'].update('')
@@ -59,7 +73,6 @@ class App:
                     self.chat_assistant.historico_mensagens.clear()
 
                 elif event == "Enviar mensagem ou pergunta":
-                    values = window.read()[1]  # Obtém os valores do formulário
                     nome = values['-NOME-']
                     idade = int(values['-IDADE-'])  # Converte a idade para inteiro
                     if idade <= 17:
@@ -72,18 +85,20 @@ class App:
                     humor = values['-HUMOR-']
                     personagem = values['-PERSONAGEM-']
                     mensagem = values['-MENSAGEM-']
-                    self.mensagem = self.prompt.gera_prompt(nome, idade, moradia, humor, personagem)
+                    self.mensagem = self.prompt.gera_prompt(nome, idade, moradia, humor, personagem, mensagem)
                     resposta = self.conversar_com_personagem(nome, idade, moradia, humor, personagem, mensagem)
                     window['-OUTPUT1-'].print(f"{personagem.upper()} DIZ:\n{resposta}\n\n")
                     
-                    images = self.image_fetcher.download_personagem_image(personagem, filtro_familia)
-                    for i, image in enumerate(images[:2]):
-                        self.update_window_with_image(window, f'-IMAGE{i+1}-', image)
-            
+                    with concurrent.futures.ThreadPoolExecutor() as executor:
+                        future = executor.submit(self.download_images, personagem, filtro_familia)
+                        images = future.result()
+                        for i, image in enumerate(images[:2]):
+                            self.update_window_with_image(window, f'-IMAGE{i+1}-', image)
+
             except Exception as e:
-                print(f"Ocorreu um erro inesperado: {e}")
-    
-        window.close()
+                error_message = f"Ocorreu um erro inesperado: {e}"
+                print(error_message)
+                window['-OUTPUT1-'].print(error_message)
 
 app = App()
 app.main()

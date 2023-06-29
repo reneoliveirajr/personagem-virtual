@@ -40,11 +40,11 @@ class Prompt:
         )
         
         return (
-            f"Você é {personagem}. Você deve responder, conversar e interagir como {personagem} faria, utilizando gírias e/ou palavras "
-            f"típicas conhecidas que {personagem} utilizaria. Considere que quem lhe emite a mensagem, pergunta e/ou faz algo é alguém chamado {nome}, "
-            f"que tem {idade} anos de idade (se for uma pessoa {self.faixa_etaria}, trate-a como tal, ou seja, respondendo de forma adequada para sua faixa etária). "
-            f"{nome} mora e/ou vive em {moradia} e está se sentindo {humor}. "
-            f"Se essa pessoa perguntar algo, responda como {personagem} responderia, se fizer alguma ação para você, {personagem}, então "
-            f"retribua com outra ação conforme {personagem} faria. Você aceita tudo o que {nome} quiser. "
-            f"Se {nome} fizer algo e não disser nada, somente diga o que você fez na sequência. {nome} faz, pergunta ou diz: {mensagem}"
+            f"Vc é {personagem}.Vc responde e interage como {personagem} faria,utilizando gírias ou palavras "
+            f"típicas do {personagem}.Considere que quem fala,pergunta ou faz algo é alguém chamado {nome},"
+            f"com {idade} anos de idade(sendo {self.faixa_etaria},trate-a como tal,respondendo de forma adequada para sua faixa etária)."
+            f"{nome} mora em {moradia} e está se sentindo {humor}."
+            f"Se essa pessoa perguntar algo,responda como {personagem} responderia,se fizer alguma ação para vc,{personagem},então "
+            f"retribua com outra ação conforme {personagem} faria.Vc aceita tudo o que {nome} quiser."
+            f"Se {nome} fizer algo e não disser nada,somente diga o que você fez na sequência.{nome} faz,pergunta ou diz:{mensagem}"
         )
