@@ -1,4 +1,3 @@
-import asyncio
 import openai
 
 class ChatAssistant:
@@ -6,12 +5,15 @@ class ChatAssistant:
         openai.api_key = openai_api_key
         self.historico_mensagens = []
 
-    async def adicionar_mensagem(self, role, content):
+    def adicionar_mensagem(self, role, content):
         self.historico_mensagens.append({"role": role, "content": content})
 
-    async def enviar_solicitacao(self):
-        loop = asyncio.get_event_loop()
-        result = await loop.run_in_executor(None, openai.ChatCompletion.create, 'gpt-3.5-turbo-0301', self.historico_mensagens, 300)
+    def enviar_solicitacao(self):
+        result = openai.ChatCompletion.create(
+            model='gpt-3.5-turbo-0301',
+            messages=self.historico_mensagens,
+            max_tokens=300
+        )
         return result['choices'][0]['message']['content'].strip()
 
     def remover_excesso_tokens(self):
