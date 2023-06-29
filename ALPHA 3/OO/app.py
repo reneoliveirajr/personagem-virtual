@@ -17,6 +17,12 @@ class App:
         self.chat_assistant = ChatAssistant(self.config.openai_api_key)
         self.image_fetcher = ImageFetcher()
 
+        self.filtro_familia_map = {
+            (0, 17): "Strict",
+            (18, 59): "Off",
+            (60, float("inf")): "Moderate"
+        }
+
     @staticmethod
     def update_window_with_image(window, key, image):
         image.thumbnail((333, 333))
@@ -75,12 +81,7 @@ class App:
                 elif event == "Enviar mensagem ou pergunta":
                     nome = values['-NOME-']
                     idade = int(values['-IDADE-'])  # Converte a idade para inteiro
-                    if idade <= 17:
-                        filtro_familia = "Strict"
-                    elif 18 <= idade <= 59:
-                        filtro_familia = "Off"
-                    else:
-                        filtro_familia = "Moderate"
+                    filtro_familia = next((valor for faixa, valor in self.filtro_familia_map.items() if faixa[0] <= idade <= faixa[1]), None)
                     moradia = values['-MORADIA-']
                     humor = values['-HUMOR-']
                     personagem = values['-PERSONAGEM-']
