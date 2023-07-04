@@ -56,7 +56,7 @@ class App:
             [sg.Image(key='-IMAGE1-', size=(400, 300)), sg.Output(size=(40, 20), key='-OUTPUT1-', expand_x=True, expand_y=True), sg.Image(key='-IMAGE2-', size=(400, 300))],
         ]
 
-        window = sg.Window("Simulador de Personagens - by René - Versão ALPHA 3", layout, resizable=True)
+        window = sg.Window("Simulador de Personagens - by René - Versão ALPHA 3.0", layout, resizable=True)
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
             while True:
