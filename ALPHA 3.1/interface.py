@@ -1,6 +1,12 @@
 import PySimpleGUI as sg
+from config import Config
 
 class Interface:
+    def __init__(self):
+        self.config = Config()
+        self.config.validar_existencia_chaves()
+        self.config.chaves_incorretas()
+
     def main(self):
         sg.set_options(font=("Arial", 12))
 

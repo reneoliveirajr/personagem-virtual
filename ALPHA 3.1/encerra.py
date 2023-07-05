@@ -1,9 +1,9 @@
 import shutil
 import sys
 
-class LimpaCache:
+class Encerra:
     @staticmethod
-    def limpa_cache():
+    def encerra():
         cache_dir = "__pycache__"
         shutil.rmtree(cache_dir, ignore_errors=True)
         sys.exit()
