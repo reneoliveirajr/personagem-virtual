@@ -20,6 +20,8 @@ class Config:
             load_dotenv("config.env")
             self.bing_api_key = os.getenv("BING_API_KEY")
             self.openai_api_key = os.getenv("OPENAI_API_KEY")
+        self.validar_existencia_chaves()
+        self.chaves_incorretas()
 
     def exibe_erro_e_fecha(self, mensagem, titulo):
         sg.popup(mensagem, title=titulo)
