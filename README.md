@@ -17,3 +17,9 @@ E se você pudesse conversar com Jesus Cristo pelo seu PC?
 
 ![Personagem-Virtual-Screenshot-06-Jesus](https://i.imgur.com/zyaQ00U.jpeg)
 
+# Desenvolvimento Atual
+
+No momento só estou trabalhando em melhorias da versão ALPHA 3.1
+
+[![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=reneoliveirajr_personagem-virtual)](https://sonarcloud.io/summary/new_code?id=reneoliveirajr_personagem-virtual)
+
