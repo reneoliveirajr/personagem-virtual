@@ -3,6 +3,7 @@ from PIL import ImageTk
 import PySimpleGUI as sg
 from bing_api import BingAPI
 from config import Config
+from openai_api import OpenAI
 
 class Interface:
     def __init__(self):
@@ -56,6 +57,9 @@ class Interface:
                         self.atualiza_imagem(janela, f"-IMAGEM{indice+1}-", imagem)
                         if indice >=1:
                             break
+                    instancia_conversa = OpenAI(nome, idade, moradia, humor, personagem, mensagem)
+                    resposta = instancia_conversa.enviar_prompt()
+                    janela["-RESPOSTA-"].print(f"{personagem.upper()} DIZ:\n{resposta}\n\n")
             except Exception as erro:
                sg.popup(f"Erro: {erro}", title="Erro Fatal")
         janela.close()
