@@ -2,9 +2,12 @@ import os
 import re
 import sys
 import configparser
+
 from dotenv import load_dotenv
 import PySimpleGUI as sg
+
 from encerra import Encerra
+
 
 PADRAO_OPENAI = r"^sk-[A-Za-z0-9]{48}$"
 PADRAO_BING = r"^[0-9a-f]{32}$"
@@ -20,21 +23,28 @@ class Config:
             load_dotenv("config.env")
             self.bing_api_key = os.getenv("BING_API_KEY")
             self.openai_api_key = os.getenv("OPENAI_API_KEY")
-        self.validar_existencia_chaves()
+        self.validar_existencia_de_chaves()
         self.chaves_incorretas()
 
     def exibe_erro_e_fecha(self, mensagem, titulo):
         sg.popup(mensagem, title=titulo)
         Encerra.encerra()
 
-    def validar_existencia_chaves(self):
+    def validar_existencia_de_chaves(self):
         if not self.openai_api_key and not self.bing_api_key:
-            self.exibe_erro_e_fecha("Erro: As chaves da OpenAI e do Bing não estão especificadas.\nConfigure suas chaves no arquivo config.env no mesmo diretório do programa.", "Chaves Não Encontradas")
+            self.exibe_erro_e_fecha(
+                f"Erro: As keys da OpenAI e do Bing não estão especificadas."
+                f"\nConfigure suas chaves no arquivo config.env no mesmo "
+                f"diretório do programa.", "Chaves Não Encontradas")
         elif not self.openai_api_key:
-            self.exibe_erro_e_fecha("Erro: A chave da OpenAI não está especificada.", "OpenAI Key API Not Found")
+            self.exibe_erro_e_fecha(
+                f"Erro: A chave da OpenAI não está "
+                f"especificada.", "OpenAI Key API Not Found")
         elif not self.bing_api_key:
-            self.exibe_erro_e_fecha("Erro: A chave do Bing API não está especificada.", "Bing API Key Not Found")
-
+            self.exibe_erro_e_fecha(
+                f"Erro: A chave do Bing API não está especificada.",
+                  "Bing API Key Not Found")
+            
     def verificar_chave_openai(self):
         return not re.match(PADRAO_OPENAI, self.openai_api_key)
 
@@ -43,8 +53,14 @@ class Config:
 
     def chaves_incorretas(self):
         if self.verificar_chave_openai() and self.verificar_chave_bing():
-            self.exibe_erro_e_fecha("Erro: Ambas as chaves do Bing API e da OpenAI estão incorretas.\nVerifique o formato das chaves e tente novamente.", "Chaves Incorretas")
+            self.exibe_erro_e_fecha(
+                f"Erro: Ambas as chaves do Bing API e da OpenAI estão "
+                f"incorretas.\nVerifique o formato das chaves e tente "
+                f"novamente.", "Chaves Incorretas")
         elif self.verificar_chave_openai():
-            self.exibe_erro_e_fecha("Erro: A chave da OpenAI está incorreta.", "OpenAI API Key Format Error")
+            self.exibe_erro_e_fecha(
+                f"Erro: A chave da OpenAI está incorreta.",
+                 "OpenAI API Key Format Error")
         elif self.verificar_chave_bing():
-            self.exibe_erro_e_fecha("Erro: A chave do Bing está incorreta.", "Bing API Key Format Error")
+            self.exibe_erro_e_fecha("Erro: A chave do Bing está incorreta.", 
+                                    "Bing API Key Format Error")

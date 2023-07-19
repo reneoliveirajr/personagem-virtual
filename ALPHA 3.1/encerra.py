@@ -1,6 +1,7 @@
 import shutil
 import sys
 
+
 class Encerra:
     @staticmethod
     def encerra():
